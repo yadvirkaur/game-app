@@ -1,5 +1,7 @@
 // import useData from "./useData";
-import genres from '../data/genres'
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../services/api-client';
+import { FetchResponse } from '../services/api-client';
 
 export interface Genre {
   id: number;
@@ -7,9 +9,13 @@ export interface Genre {
   image_background: string;
 }
 
-
-// const useGenres = () => useData<Genre>("/genres")
-//we shipped genre list using static data as it will hardly change and this will save the extra request to server and improves performance
-const useGenres = () => ({ data: genres, error:false, isLoading:null })
+const useGenres = () =>
+  useQuery({
+    queryKey: ['genres'],
+    queryFn: () =>
+      apiClient.get<FetchResponse<Genre>>('/genres').then((res) => res.data),
+    staleTime: 24 * 60 * 60 * 1000, //24h
+    // initialData: genres,
+  });
 
 export default useGenres;
